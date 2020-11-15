@@ -1,0 +1,36 @@
+version: '3.7'
+
+volumes:
+  wallet:
+  mongo:
+
+networks:
+  test:
+  tools_proxy:
+    external:
+      name: tools_network
+
+services:
+  api-hyperledger:
+    build:
+      context: ./server/
+    volumes:
+      - wallet:/opt/wallet
+      - ../hyperledger/organizations/peerOrganizations:/opt/peerOrganizations
+    ports:
+      - "8091:8091"
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - tools_proxy
+
+  mongo:
+    image: mongo
+    volumes:
+      - mongo:/data/db
+    command: --port 27000
+    ports:
+     - 27000:27000
+    networks:
+      - tools_proxy
